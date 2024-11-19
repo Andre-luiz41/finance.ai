@@ -1,23 +1,27 @@
-version: '3'
+version: '3.8'
 
 services:
-  db:
-    image: postgres:latest
-    container_name: finance-db   # Nome do container do banco de dados
-    environment:
-      POSTGRES_USER: Andre
-      POSTGRES_PASSWORD: Aa22111988
-      POSTGRES_DB: finance_db
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
   app:
-    build: .
-    container_name: finance-app  # Nome do container da aplicação
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "5000:5000"
+    environment:
+      - NODE_ENV=production
     depends_on:
-      - db
+      - finance-db
+
+  finance-db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: finance_db
+    volumes:
+      - financeai_postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
 
 volumes:
-  postgres_data:
+  financeai_postgres_data:

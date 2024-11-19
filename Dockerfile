@@ -1,23 +1,22 @@
-# Usar a imagem oficial do Node.js
-FROM node:18
+# Etapa de Build
+FROM node:18 AS build-stage
 
-# Definir o diretório de trabalho no contêiner
 WORKDIR /usr/src/app
 
-# Copiar os arquivos package.json e package-lock.json
 COPY package*.json ./
-
-# Instalar as dependências
 RUN npm install
 
-# Copiar os arquivos restantes para o contêiner
-COPY prisma ./prisma
+COPY . .
 
-# Rodar o comando Prisma para gerar o cliente
-RUN npx prisma generate
+# Etapa de Produção
+FROM node:18-slim AS production-stage
 
-# Expor a porta do aplicativo
+WORKDIR /usr/src/app
+
+COPY --from=build-stage /usr/src/app /usr/src/app
+
+RUN npm install --production
+
 EXPOSE 5000
 
-# Rodar o aplicativo
 CMD ["npm", "start"]
